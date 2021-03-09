@@ -7,10 +7,10 @@ base_iterations = 200 * u.MILLION
 
 aggregators = [u.Aggregator("daba", '-', 'black'),
                u.Aggregator("daba_lite", '--', 'black'),
+               u.Aggregator("rb_daba_lite", 'dotted', 'black'),
                u.Aggregator("two_stacks", '-', 'red'),
-               u.Aggregator("two_stacks_lite", '--', 'red'),
-               u.Aggregator("rb_two_stacks_lite", '-', 'darkorchid'),
-               u.Aggregator("chunked_two_stacks_lite", '--', 'darkorchid'),
+               u.Aggregator("chunked_two_stacks_lite", '--', 'red'),
+               u.Aggregator("rb_two_stacks_lite", (0, (1, 1)), (1,0,0,0.75)),
                u.Aggregator("flatfit", '-', 'blue'),
                u.Aggregator("bfinger4", '-', 'green'),
               ]

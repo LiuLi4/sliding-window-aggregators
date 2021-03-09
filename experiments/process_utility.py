@@ -6,14 +6,18 @@ KB = 1024
 MB = KB * KB
 MILLION = 1000000
 
+TRANSLATION_TABLE = {
+    'bfinger4': 'fiba4',
+    'rb_daba_lite': 'frb_daba_lite',
+    'chunked_two_stacks_lite': 'two_stacks_lite',
+}
+
 Data = collections.namedtuple('Data', ['agg', 'degree', 'window', 'avg', 'std'])
 SharedData = collections.namedtuple('SharedData', ['agg', 'big_window', 'small_window', 'avg', 'std'])
 Aggregator = collections.namedtuple('Aggregator', ['name', 'style', 'color'])
 
 def get_screen_name(name):
-    if name == 'bfinger4':
-        return 'fiba4'
-    return name
+    return TRANSLATION_TABLE.get(name, name)
 
 def set_fonts():
     plt.rcParams['pdf.fonttype'] = 42 # avoid type 3 fonts
@@ -22,7 +26,7 @@ def set_fonts():
     plt.rcParams['font.size'] = 18
     plt.rcParams['ytick.labelsize'] = 13
     plt.rcParams['xtick.labelsize'] = 13
-    plt.rcParams['legend.fontsize'] = 16
+    plt.rcParams['legend.fontsize'] = 14
     plt.rcParams['axes.titlesize'] = 22
 
 def read_latency_data(name):
@@ -107,7 +111,7 @@ def make_throughput_graph(title, preamble, varying, function, aggs, aggregators)
     ax = graph.add_subplot(111)
     ax.set_title(title + ' ' + function)
     ax.set_xlabel(varying)
-    ax.set_xscale('log', basex=2)
+    ax.set_xscale('log', base=2)
     ax.set_xticks([2, 2**3, 2**5, 2**7, 2**9, 2**11, 2**13, 2**15, 2**17, 2**19, 2**21])
 
     ax.set_ylabel('throughput [million items/s]')
@@ -133,7 +137,7 @@ def make_mfgdebs_throughput_graph(title, preamble, varying, function, aggs, aggr
     ax = graph.add_subplot(111)
     ax.set_title(title + ' ' + function)
     ax.set_xlabel(varying)
-    ax.set_xscale('log', basex=10)
+    ax.set_xscale('log', base=10)
     ax.set_ylabel('throughput [million items/s]')
 
     for aggregator in aggregators:
@@ -170,11 +174,13 @@ def make_violin_graph(data, aggs_sorted, name, title, preamble):
     all_perc99 = []
     all_perc99999 = []
     pos = range(1, len(aggs_sorted)+1)
+    print('---started to add all in---')
     for agg in aggs_sorted:
         latencies = np.array(data[agg], dtype=np.uint64)
         all_latencies.append(latencies)
         all_perc99.append(np.percentile(latencies, 99.9))
         all_perc99999.append(np.percentile(latencies, 99.999))
+    print('---added all in---')
     parts = ax.violinplot(all_latencies, pos, points=200, showmedians=True)
     for p in parts['bodies']:
         p.set_facecolor('#becae4')
@@ -182,14 +188,15 @@ def make_violin_graph(data, aggs_sorted, name, title, preamble):
 
     ax.hlines(all_perc99, xmin=[x - 0.1 for x in pos], xmax=[x + 0.1 for x in pos])
     for x, y in zip(pos, all_perc99):
-        plt.text(x+0.15, y, '99.9%', va='center', fontsize=10)
+        plt.text(x+0.15, y, '99.9%', va='center', fontsize=8)
 
     ax.hlines(all_perc99999, xmin=[x - 0.1 for x in pos], xmax=[x + 0.1 for x in pos])
     for x, y in zip(pos, all_perc99999):
-        plt.text(x+0.15, y, '99.999%', va='center', fontsize=10)
+        plt.text(x+0.15, y, '99.999%', va='center', fontsize=8)
 
     plt.setp(ax, xticks=[x+1 for x in range(len(aggs_sorted))], xticklabels=[get_screen_name(agg) for agg in aggs_sorted])
     graph.autofmt_xdate()
+    print('---beginning to write out---')
     graph.savefig('figures/' + preamble + '_violin_' + name + '.pdf', bbox_inches='tight')
     plt.close(graph)
 
